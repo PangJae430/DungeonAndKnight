@@ -1,0 +1,45 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "PlayerCamera.h"
+
+#include "Camera/CameraComponent.h"
+#include "GameFramework/Character.h"
+#include "Kismet/GameplayStatics.h"
+
+// Sets default values
+APlayerCamera::APlayerCamera()
+{
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+	
+	SceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
+	SceneComp ->SetupAttachment(RootComponent);
+	
+	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
+	CameraComp ->SetupAttachment(SceneComp);
+
+}
+
+// Called when the game starts or when spawned
+void APlayerCamera::BeginPlay()
+{
+	Super::BeginPlay();
+	
+}
+
+// Called every frame
+void APlayerCamera::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	auto* player = UGameplayStatics::GetPlayerCharacter(GetWorld(),0);
+	if (player)
+	{
+		FVector Location = player->GetActorLocation();
+		
+	}
+	
+
+}
+
