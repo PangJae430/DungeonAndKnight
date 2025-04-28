@@ -29,12 +29,12 @@ public:
 
 	virtual void NotifyControllerChanged() override;
 
-	UPROPERTY(EditAnywhere)
-	class USpringArmComponent* SpringArmComp;
+	//UPROPERTY(EditAnywhere)
+	//class USpringArmComponent* SpringArmComp;
 
-	UPROPERTY(EditAnywhere)
-	class UCameraComponent* CameraComp;
-
+	//UPROPERTY(EditAnywhere)
+	//class UCameraComponent* CameraComp;
+	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FVector Direction;
 

@@ -4,12 +4,16 @@
 #include "DungeonAndKnightPlayer.h"
 
 //#include "../DungeonAndKnight.h"
+#include "AssetSelection.h"
+#include "Enemy.h"
+#include "EnemyFSM.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ADungeonAndKnightPlayer::ADungeonAndKnightPlayer()
@@ -131,6 +135,22 @@ void ADungeonAndKnightPlayer::OnActionJump(const FInputActionValue& value)
 
 void ADungeonAndKnightPlayer::OnActionAttack(const FInputActionValue& value)
 {
-	
-}
+	FHitResult OutHit;
+	FVector start = GetActorLocation();
+	FVector end = start + GetActorForwardVector() * 200.f;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
 
+	bool bhit = GetWorld()-> LineTraceSingleByChannel(OutHit,start,end,ECC_Visibility,Params);
+	// 라인트레이스 디버그라인(빨간줄)
+	DrawDebugLine(GetWorld(), start,end,FColor::Red, false, 2.0f, 0, 1.0f);
+	
+	if (bhit==true)
+	{
+		if (AEnemy* Enemy =Cast<AEnemy>(OutHit.GetActor()))
+		{
+			Enemy -> EnemyFSM -> OnMyTakeDamage(1);
+		}
+	}
+}
+	

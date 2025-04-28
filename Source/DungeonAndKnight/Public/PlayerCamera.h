@@ -26,15 +26,13 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UCameraComponent* CameraComp;
 	
-	UPROPERTY(EditAnywhere)
-	class USceneComponent* SceneComp;
-
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	class ACharacter* Player;
-
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector CameraOffset;
+	
+	
 	float Z;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float X;
 	
+	UFUNCTION()
+	void UpdateCameraPosition();
 };
