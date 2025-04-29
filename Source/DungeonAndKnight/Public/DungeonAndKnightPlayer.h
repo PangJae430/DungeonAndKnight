@@ -28,16 +28,12 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual void NotifyControllerChanged() override;
-
-	//UPROPERTY(EditAnywhere)
-	//class USpringArmComponent* SpringArmComp;
-
-	//UPROPERTY(EditAnywhere)
-	//class UCameraComponent* CameraComp;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FVector Direction;
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	class UStaticMeshComponent* SwordComp;
 	
 	
 	UPROPERTY(EditAnywhere, Category = Input)
@@ -56,6 +52,9 @@ public:
 	
 	void OnActionMove(const FInputActionValue& value);
 	void OnActionJump(const FInputActionValue& value);
-	void OnActionAttack(const FInputActionValue& value);
+	void OnActionAttackStart(const FInputActionValue& value);
+	void OnActionAttackEnd(const FInputActionValue& value);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsAttack;
 };

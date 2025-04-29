@@ -30,18 +30,7 @@ ADungeonAndKnightPlayer::ADungeonAndKnightPlayer()
 		GetMesh() -> SetRelativeLocationAndRotation
 		(FVector(0,0,-90.f), FRotator(0,-90.f,0));
 	}
-
-	 // 2. SpringArmComp를 만들어서 Root에 붙이고 배치하고 싶다
-	//SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
-	//SpringArmComp ->SetupAttachment(RootComponent);
-	//SpringArmComp ->TargetArmLength = 700.f;
-	//SpringArmComp ->SetWorldRotation(FRotator(-30.f,90.f,0.f));
 	
-
-	 // 3. CameraComp를 만들어서 SpringArmComp에 붙이고 싶다
-	//CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
-	//CameraComp -> SetupAttachment(SpringArmComp);
-
 
 	ConstructorHelpers::FObjectFinder<UInputMappingContext>
 	tempIMC(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/DungeonAndKnight/Input/IMC_Player.IMC_Player'"));
@@ -50,8 +39,21 @@ ADungeonAndKnightPlayer::ADungeonAndKnightPlayer()
 		IMC_Player=tempIMC.Object;
 	}
 
+	// 칼을 생성하고 싶다
+	SwordComp=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SwordComp"));
+	SwordComp->SetupAttachment(GetMesh(),"Sword");
+	SwordComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	SwordComp->SetRelativeScale3D(FVector(0.5f, 0.5f, 0.5f));
+	
+
+	ConstructorHelpers::FObjectFinder<UStaticMesh>
+	tempSwordMesh(TEXT("/Script/Engine.StaticMesh'/Game/DungeonAndKnight/Assets/sword/source/Practice_sword.Practice_sword'"));
+	if (tempSwordMesh.Succeeded())
+	{
+		SwordComp->SetStaticMesh(tempSwordMesh.Object);
+	}
+
 	bUseControllerRotationYaw = false;
-	//SpringArmComp->bUsePawnControlRotation =true;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	// 점프 높이 설정
@@ -59,6 +61,7 @@ ADungeonAndKnightPlayer::ADungeonAndKnightPlayer()
 	//점프 중 공중에서 조작 가능 정도
 	GetCharacterMovement()->AirControl = 0.25f;
 
+	bIsAttack=false;
 	
 }
 
@@ -93,7 +96,7 @@ void ADungeonAndKnightPlayer::NotifyControllerChanged()
 void ADungeonAndKnightPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	// ControlRotation값으로 Transform을 만들고 그것을 기준으로 방향을 변경하고
 	// AddMovementInput 하고싶다.
 	FTransform t = FTransform(GetControlRotation());
@@ -113,14 +116,18 @@ void ADungeonAndKnightPlayer::SetupPlayerInputComponent(UInputComponent* PlayerI
 	{
 		input -> BindAction(IA_PlayerMove,ETriggerEvent::Triggered,this,&ADungeonAndKnightPlayer::OnActionMove);
 		input -> BindAction(IA_PlayerJump,ETriggerEvent::Started,this,&ADungeonAndKnightPlayer::OnActionJump);
-		input -> BindAction(IA_PlayerAttack,ETriggerEvent::Started,this,&ADungeonAndKnightPlayer::OnActionAttack);
+		input -> BindAction(IA_PlayerAttack,ETriggerEvent::Started,this,&ADungeonAndKnightPlayer::OnActionAttackStart);
+		input -> BindAction(IA_PlayerAttack,ETriggerEvent::Completed,this,&ADungeonAndKnightPlayer::OnActionAttackEnd);
 	}
 
 }
 
-
+// 캐릭터 이동
 void ADungeonAndKnightPlayer::OnActionMove(const FInputActionValue& value)
 {
+	if (bIsAttack)
+		return;
+	
 	GetCharacterMovement()->RotationRate= FRotator(0.f,720.f,0.f);
 	FVector2D v = value.Get<FVector2D>();
 	Direction.X = v.X;
@@ -128,13 +135,22 @@ void ADungeonAndKnightPlayer::OnActionMove(const FInputActionValue& value)
 	
 }
 
+//캐릭터 점프
 void ADungeonAndKnightPlayer::OnActionJump(const FInputActionValue& value)
 {
 	Jump();
 }
 
-void ADungeonAndKnightPlayer::OnActionAttack(const FInputActionValue& value)
+//공격시작
+void ADungeonAndKnightPlayer::OnActionAttackStart(const FInputActionValue& value)
 {
+	if (bIsAttack==false)
+	{
+		bIsAttack=true;
+		GetCharacterMovement()->DisableMovement();
+	}
+
+	
 	FHitResult OutHit;
 	FVector start = GetActorLocation();
 	FVector end = start + GetActorForwardVector() * 200.f;
@@ -142,6 +158,7 @@ void ADungeonAndKnightPlayer::OnActionAttack(const FInputActionValue& value)
 	Params.AddIgnoredActor(this);
 
 	bool bhit = GetWorld()-> LineTraceSingleByChannel(OutHit,start,end,ECC_Visibility,Params);
+	
 	// 라인트레이스 디버그라인(빨간줄)
 	DrawDebugLine(GetWorld(), start,end,FColor::Red, false, 2.0f, 0, 1.0f);
 	
@@ -153,4 +170,9 @@ void ADungeonAndKnightPlayer::OnActionAttack(const FInputActionValue& value)
 		}
 	}
 }
-	
+
+//공격 끝
+void ADungeonAndKnightPlayer::OnActionAttackEnd(const FInputActionValue& value)
+{
+	bIsAttack=false;
+}

@@ -20,7 +20,7 @@ AEnemy::AEnemy()
 		GetMesh() -> SetRelativeLocationAndRotation
 		(FVector(0,0,-90.f), FRotator(0,-90.f,0));
 	}
-
+	//GetMesh() -> SetCollisionProfileName(TEXT(" "));
 	EnemyFSM = CreateDefaultSubobject<UEnemyFSM>(TEXT("EnemyFSM"));
 
 }

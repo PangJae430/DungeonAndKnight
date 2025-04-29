@@ -28,5 +28,5 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class UEnemyFSM* EnemyFSM;
-
+	
 };
