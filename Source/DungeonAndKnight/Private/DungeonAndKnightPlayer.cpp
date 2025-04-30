@@ -47,7 +47,7 @@ ADungeonAndKnightPlayer::ADungeonAndKnightPlayer()
 	
 
 	ConstructorHelpers::FObjectFinder<UStaticMesh>
-	tempSwordMesh(TEXT("/Script/Engine.StaticMesh'/Game/DungeonAndKnight/Assets/sword/source/Practice_sword.Practice_sword'"));
+	tempSwordMesh(TEXT("/Script/Engine.StaticMesh'/Game/DungeonAndKnight/Assets/A_Models/sword/source/Practice_sword.Practice_sword'"));
 	if (tempSwordMesh.Succeeded())
 	{
 		SwordComp->SetStaticMesh(tempSwordMesh.Object);
@@ -59,7 +59,7 @@ ADungeonAndKnightPlayer::ADungeonAndKnightPlayer()
 	// 점프 높이 설정
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	//점프 중 공중에서 조작 가능 정도
-	GetCharacterMovement()->AirControl = 0.25f;
+	GetCharacterMovement()->AirControl = 0.75f;
 
 	bIsAttack=false;
 	
@@ -125,13 +125,16 @@ void ADungeonAndKnightPlayer::SetupPlayerInputComponent(UInputComponent* PlayerI
 // 캐릭터 이동
 void ADungeonAndKnightPlayer::OnActionMove(const FInputActionValue& value)
 {
-	if (bIsAttack)
-		return;
-	
+	if (!bIsAttack)
+	{
 	GetCharacterMovement()->RotationRate= FRotator(0.f,720.f,0.f);
 	FVector2D v = value.Get<FVector2D>();
 	Direction.X = v.X;
 	Direction.Y = v.Y;
+	}
+	
+		
+
 	
 }
 
@@ -147,7 +150,7 @@ void ADungeonAndKnightPlayer::OnActionAttackStart(const FInputActionValue& value
 	if (bIsAttack==false)
 	{
 		bIsAttack=true;
-		GetCharacterMovement()->DisableMovement();
+		GetCharacterMovement()-> MaxWalkSpeed = 0.f;
 	}
 
 	
@@ -175,4 +178,5 @@ void ADungeonAndKnightPlayer::OnActionAttackStart(const FInputActionValue& value
 void ADungeonAndKnightPlayer::OnActionAttackEnd(const FInputActionValue& value)
 {
 	bIsAttack=false;
+	GetCharacterMovement()-> MaxWalkSpeed = 600.f;
 }

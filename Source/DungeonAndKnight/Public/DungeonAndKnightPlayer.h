@@ -47,6 +47,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	class UInputAction* IA_PlayerAttack;
+	
 
 	
 	
@@ -57,4 +58,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsAttack;
+	
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	UAnimMontage* DefaultAttackMontage;
 };
