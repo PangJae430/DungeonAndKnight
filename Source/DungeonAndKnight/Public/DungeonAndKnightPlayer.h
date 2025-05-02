@@ -50,16 +50,48 @@ public:
 	
 
 	
-	
+	// 이동과 점프
 	void OnActionMove(const FInputActionValue& value);
 	void OnActionJump(const FInputActionValue& value);
+	
+	// 공격 시작과 끝
 	void OnActionAttackStart(const FInputActionValue& value);
 	void OnActionAttackEnd(const FInputActionValue& value);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	class UAnimMontage* PlayerDefaultAttackMontage;
+	
+	UFUNCTION()
+	void HandleOnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload);
+	
+	// void PlayAttackMontageSection(int32 ComboIndex);
+	// void EnableComboInput();
+	//void PlayNextComboSection();
+	
+	// 기본공격상태 변수들
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsAttack;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bCanNextCombo;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
-	UAnimMontage* DefaultAttackMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bNextComboQueued;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 ComboAttackIndex = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 CurrentCombo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 MaxCombo;
+
+
+	
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	// int32 MaxCombo;
+	
+	
+	
 };

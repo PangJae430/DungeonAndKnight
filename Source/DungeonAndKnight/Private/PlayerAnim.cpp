@@ -26,5 +26,22 @@ void UPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 	Speed = FVector::DotProduct( Player ->GetVelocity(), Player -> GetActorForwardVector());
 
 	bIsInAir =Player->GetCharacterMovement()->IsFalling();
-	
 }
+
+// void UPlayerAnim::AnimNotifyEnableCombo(UAnimNotify* Notify)
+// {
+// 	if (Player)
+// 	{
+// 		Player -> EnableComboInput();
+// 	}
+// }
+//
+// void UPlayerAnim::AnimNotifyAttackEnd(UAnimNotify* Notify)
+// {
+// 	auto* player = Cast<ADungeonAndKnightPlayer>(TryGetPawnOwner());
+// 	if (player)
+// 	{
+// 		FInputActionValue Value;
+// 		player -> OnActionAttackEnd(Value);
+// 	}
+// }
