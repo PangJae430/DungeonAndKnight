@@ -18,12 +18,6 @@ public:
 
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-
-	//UFUNCTION()
-	//void AnimNotifyEnableCombo(UAnimNotify* notify);
-
-	// UFUNCTION()
-	// void AnimNotifyAttackEnd(UAnimNotify* notify);
 	
 	UPROPERTY()
 	class ADungeonAndKnightPlayer* Player;

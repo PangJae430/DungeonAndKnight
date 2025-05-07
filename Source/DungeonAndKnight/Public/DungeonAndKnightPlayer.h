@@ -69,29 +69,13 @@ public:
 	//void PlayNextComboSection();
 	
 	// 기본공격상태 변수들
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsAttack;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bCanNextCombo;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bNextComboQueued;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 ComboAttackIndex = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 CurrentCombo;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 MaxCombo;
 
-
-	
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	// int32 MaxCombo;
-	
-	
+	TArray<int32> ComboQueue;
 	
 };

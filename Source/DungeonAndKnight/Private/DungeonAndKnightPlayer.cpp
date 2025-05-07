@@ -67,7 +67,7 @@ ADungeonAndKnightPlayer::ADungeonAndKnightPlayer()
 	bCanNextCombo = false;
 	bNextComboQueued = false;
 	CurrentCombo = 0;
-	MaxCombo = 3;
+	MaxCombo = 4;
 	
 }
 
@@ -76,10 +76,10 @@ void ADungeonAndKnightPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	auto* PLAnimInst = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
-	if (PLAnimInst != nullptr)
+	auto* pAnimInst = Cast<UPlayerAnim>(GetMesh()->GetAnimInstance());
+	if (pAnimInst)
 	{
-		PLAnimInst -> OnPlayMontageNotifyBegin.AddDynamic(this, &ADungeonAndKnightPlayer::HandleOnMontageNotifyBegin);
+		pAnimInst -> OnPlayMontageNotifyBegin.AddDynamic(this, &ADungeonAndKnightPlayer::HandleOnMontageNotifyBegin);
 	}
 	
 }
@@ -155,114 +155,103 @@ void ADungeonAndKnightPlayer::OnActionJump(const FInputActionValue& value)
 //공격시작
 void ADungeonAndKnightPlayer::OnActionAttackStart(const FInputActionValue& value)
 {
-	if (bIsAttack == false)
+	UE_LOG(LogTemp, Warning, TEXT("OnActionAttackStart"))
+	// 콤보를 할 수 있는 상태라면
+	if (bIsAttack)
 	{
-		bIsAttack =true;
-		CurrentCombo = 1; //첫번째 기본공격 콤보 시작
-		bCanNextCombo = true;
-		UAnimInstance* animInst = GetMesh()->GetAnimInstance();
-		if (animInst != nullptr)
-		{
-			if (PlayerDefaultAttackMontage != nullptr)
-			{
-				
-				animInst -> Montage_Play(PlayerDefaultAttackMontage);
-				bCanNextCombo = true; //다음 콤보 입력 허용
-			}
-		}
-
-		FHitResult OutHit;
-		FVector start = GetActorLocation();
-		FVector end = start + GetActorForwardVector() * 200.f;
-		FCollisionQueryParams Params;
-		Params.AddIgnoredActor(this);
-
-		bool bhit = GetWorld()-> LineTraceSingleByChannel(OutHit,start,end,ECC_Visibility,Params);
-	
-		// 라인트레이스 디버그라인(빨간줄)
-		DrawDebugLine(GetWorld(), start,end,FColor::Red, false, 2.0f, 0, 1.0f);
+		if (CurrentCombo >= MaxCombo - 1)
+			return;
 		
-		if (bhit==true)
-		{
-			if (AEnemy* Enemy =Cast<AEnemy>(OutHit.GetActor()))
-			{
-				Enemy -> EnemyFSM -> OnMyTakeDamage(1);
-			}
-		}
+		// 콤보 공격 예약
+		CurrentCombo++;
+		ComboQueue.Add(CurrentCombo);
 	}
-	else if (bCanNextCombo)
+	else
 	{
-		bNextComboQueued = true;
-		bCanNextCombo = false;
-		GetCharacterMovement()-> MaxWalkSpeed = 0.f;
+		// 최초 공격 시작
+		bIsAttack = true;
+		CurrentCombo = 0;
+		ComboQueue.Empty();
+		PlayAnimMontage(PlayerDefaultAttackMontage, 0.8, "Attack0");
 	}
+
+
+
+	
+	// if (bIsAttack == false)
+	// {
+	// 	bIsAttack = true;
+	// 	CurrentCombo = 1;
+	// 	
+	// 	UAnimInstance* animInst = GetMesh()->GetAnimInstance();
+	// 	if (animInst && PlayerDefaultAttackMontage)
+	// 	{
+	// 		animInst->Montage_Play(PlayerDefaultAttackMontage);
+	// 		animInst->Montage_JumpToSection(FName("Attack0"));
+	// 		bCanNextCombo = true;
+	// 	}
+	//
+	// 	FHitResult OutHit;
+	// 	FVector start = GetActorLocation();
+	// 	FVector end = start + GetActorForwardVector() * 200.f;
+	// 	FCollisionQueryParams Params;
+	// 	Params.AddIgnoredActor(this);
+	//
+	// 	bool bhit = GetWorld()-> LineTraceSingleByChannel(OutHit,start,end,ECC_Visibility,Params);
+	//
+	// 	// 라인트레이스 디버그라인(빨간줄)
+	// 	DrawDebugLine(GetWorld(), start,end,FColor::Red, false, 2.0f, 0, 1.0f);
+	// 	
+	// 	if (bhit==true)
+	// 	{
+	// 		if (AEnemy* Enemy =Cast<AEnemy>(OutHit.GetActor()))
+	// 		{
+	// 			Enemy -> EnemyFSM -> OnMyTakeDamage(1);
+	// 		}
+	// 	}
+	// }
+	// else if (bCanNextCombo)
+	// {
+	// 	bNextComboQueued = true;
+	// 	bCanNextCombo = false;
+	// 	GetCharacterMovement()-> MaxWalkSpeed = 0.f;
+	// }
 }
 
 //공격 끝
 void ADungeonAndKnightPlayer::OnActionAttackEnd(const FInputActionValue& value)
 {
-	bIsAttack = false;
-	bCanNextCombo = false;
-	bNextComboQueued = false;
-	GetCharacterMovement()-> MaxWalkSpeed = 600.f;
+	
 }
 
-void ADungeonAndKnightPlayer::HandleOnMontageNotifyBegin(FName NotifyName,
-	const FBranchingPointNotifyPayload& A_PBranchingPointNotifyPayload)
+void ADungeonAndKnightPlayer::HandleOnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& Payload)
 {
-	// 노티파이 이름에 따라 콤보 처리
-	if (NotifyName == FName("Attack1"))
+	if (NotifyName == "ComboCheck")
 	{
-		if (bNextComboQueued && CurrentCombo < MaxCombo)
+		// 만약 콤보 중인데
+		if (bIsAttack)
 		{
-			CurrentCombo++;
-			bNextComboQueued = false;
-			bCanNextCombo = true;
-
-			UAnimInstance* animInst = GetMesh()->GetAnimInstance();
-			if (animInst && PlayerDefaultAttackMontage)
+			// 큐가 비어있으면 콤보 종료
+			if (ComboQueue.Num() == 0)
 			{
-				animInst->Montage_Play(PlayerDefaultAttackMontage); // 다음 콤보 애니메이션 재생
+				bIsAttack = false;
+				CurrentCombo = 0;
+			}
+			else
+			{
+				UAnimInstance* AnimInst = GetMesh()->GetAnimInstance();
+				int32 attackType  = ComboQueue[0];
+				FName NextSection = FName(*FString::Printf(TEXT("Attack%d"), attackType));
+				PlayAnimMontage(PlayerDefaultAttackMontage, 1, NextSection);
+
+				ComboQueue.RemoveAt(0);
 			}
 		}
 		else
 		{
-			// 콤보 종료
-			bIsAttack = false;
 			CurrentCombo = 0;
-			bCanNextCombo = false;
-			GetCharacterMovement()->MaxWalkSpeed = 600.f;
 		}
-	}
-	else if (NotifyName == FName("Attack2"))
-	{
-		if (bNextComboQueued && CurrentCombo < MaxCombo)
-		{
-			CurrentCombo++;
-			bNextComboQueued = false;
-			bCanNextCombo = true;
-
-			UAnimInstance* animInst = GetMesh()->GetAnimInstance();
-			if (animInst && PlayerDefaultAttackMontage)
-			{
-				animInst->Montage_Play(PlayerDefaultAttackMontage); // 다음 콤보 애니메이션 재생
-			}
-		}
-		else
-		{
-			// 콤보 종료
-			bIsAttack = false;
-			CurrentCombo = 0;
-			bCanNextCombo = false;
-			GetCharacterMovement()->MaxWalkSpeed = 600.f;
-		}
-	}
-	else if (NotifyName == FName("Attack3"))
-	{
-		// 마지막 콤보 종료
-		bIsAttack = false;
-		CurrentCombo = 0;
-		bCanNextCombo = false;
-		GetCharacterMovement()->MaxWalkSpeed = 600.f;
 	}
 }
+
+
