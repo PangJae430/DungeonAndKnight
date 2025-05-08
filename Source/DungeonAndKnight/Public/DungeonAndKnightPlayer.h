@@ -64,10 +64,6 @@ public:
 	UFUNCTION()
 	void HandleOnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload);
 	
-	// void PlayAttackMontageSection(int32 ComboIndex);
-	// void EnableComboInput();
-	//void PlayNextComboSection();
-	
 	// 기본공격상태 변수들
 	bool bIsAttack;
 	bool bCanNextCombo;
@@ -77,5 +73,20 @@ public:
 	int32 MaxCombo;
 
 	TArray<int32> ComboQueue;
+
+	bool bOnCollision = false;
+	
+	UFUNCTION()
+	void AnimNotify_AttackStart();
+	UFUNCTION()
+	void AnimNotify_AttackEnd();
+
+	UFUNCTION()
+	void StartWeaponCollision();
+
+	UFUNCTION()
+	void EndWeaponCollision();
+
+	TSubclassOf<class AActor> DamagedActor;
 	
 };

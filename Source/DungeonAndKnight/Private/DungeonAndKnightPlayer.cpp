@@ -117,6 +117,39 @@ void ADungeonAndKnightPlayer::Tick(float DeltaTime)
 
 	Direction = FVector::ZeroVector;
 
+//----------------------------------------------------------------------------------------------------
+	
+	FVector startLoc = SwordComp ->GetSocketLocation(TEXT("Start"));
+	FVector endLoc = SwordComp ->GetSocketLocation(TEXT("End"));
+	//int Steps = FMath::CeilToInt((endLoc-startLoc).Size()/15.f);
+	FQuat Caprot = FRotationMatrix::MakeFromZ(endLoc-startLoc).ToQuat();
+
+	if (bIsAttack)
+		{
+		// for (int32 i = 0; i <= Steps; i++)
+		// {
+		// 	float Alpha = i / static_cast<float>(Steps);
+		// 	FVector Point = FMath::Lerp(startLoc, endLoc,0.f);
+
+			FHitResult OutHit;
+			FCollisionQueryParams Params;
+			Params.AddIgnoredActor(this);
+
+
+			bool bHit = GetWorld()-> SweepSingleByChannel(OutHit,startLoc,endLoc,FQuat::Identity,
+				ECC_Pawn,FCollisionShape::MakeCapsule(15.f,50.f),Params);
+			
+			if (bHit==true)
+			{
+				if (AEnemy* Enemy =Cast<AEnemy>(OutHit.GetActor()))
+				{
+					Enemy -> EnemyFSM -> OnMyTakeDamage(1);}
+				}
+
+			DrawDebugCapsule(GetWorld(),startLoc,80.f,20.f,Caprot,FColor::Green,false,0.2f);
+			//}
+		}
+
 }
 
 // Called to bind functionality to input
@@ -253,5 +286,26 @@ void ADungeonAndKnightPlayer::HandleOnMontageNotifyBegin(FName NotifyName, const
 		}
 	}
 }
+
+// void ADungeonAndKnightPlayer::StartWeaponCollision()
+// {
+// 	bOnCollision = true;
+// }
+//
+// void ADungeonAndKnightPlayer::EndWeaponCollision()
+// {
+// 	bOnCollision = false;
+// }
+//
+// void ADungeonAndKnightPlayer::AnimNotify_AttackStart()
+// {
+// 	StartWeaponCollision();
+// }
+//
+// void ADungeonAndKnightPlayer::AnimNotify_AttackEnd()
+// {
+// 	EndWeaponCollision();
+// }
+
 
 
