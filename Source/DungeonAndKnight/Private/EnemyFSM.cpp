@@ -135,7 +135,7 @@ void UEnemyFSM::TickDamage()
 	CurrentTime += GetWorld()->GetDeltaSeconds();
 	if (CurrentTime>1)
 	{
-		SetState(EEnemyState::Damage);
+		SetState(EEnemyState::Move);
 	}
 	
 }

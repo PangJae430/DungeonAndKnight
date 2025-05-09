@@ -7,9 +7,7 @@
 #include "AssetSelection.h"
 #include "Enemy.h"
 #include "EnemyFSM.h"
-#include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -131,25 +129,34 @@ void ADungeonAndKnightPlayer::Tick(float DeltaTime)
 		// 	float Alpha = i / static_cast<float>(Steps);
 		// 	FVector Point = FMath::Lerp(startLoc, endLoc,0.f);
 
-			FHitResult OutHit;
+			TArray<FHitResult>OutHit;
 			FCollisionQueryParams Params;
 			Params.AddIgnoredActor(this);
 
 
-			bool bHit = GetWorld()-> SweepSingleByChannel(OutHit,startLoc,endLoc,FQuat::Identity,
+			bool bHit = GetWorld()-> SweepMultiByChannel(OutHit,startLoc,endLoc,FQuat::Identity,
 				ECC_Pawn,FCollisionShape::MakeCapsule(15.f,50.f),Params);
 			
 			if (bHit==true)
 			{
-				if (AEnemy* Enemy =Cast<AEnemy>(OutHit.GetActor()))
+				for(const FHitResult& Hit: OutHit)
 				{
-					Enemy -> EnemyFSM -> OnMyTakeDamage(1);}
+					AActor* hitActor = Hit.GetActor();
+					if (hitActor && !DamagedActorThisAttack.Contains(hitActor))
+					{
+						if (AEnemy* Enemy =Cast<AEnemy>(hitActor))
+						{
+							Enemy -> EnemyFSM -> OnMyTakeDamage(1);
+							DamagedActorThisAttack.Add(hitActor);
+						}
+					}
+						
 				}
+			}
 
 			DrawDebugCapsule(GetWorld(),startLoc,80.f,20.f,Caprot,FColor::Green,false,0.2f);
 			//}
 		}
-
 }
 
 // Called to bind functionality to input
@@ -188,6 +195,10 @@ void ADungeonAndKnightPlayer::OnActionJump(const FInputActionValue& value)
 //공격시작
 void ADungeonAndKnightPlayer::OnActionAttackStart(const FInputActionValue& value)
 {
+	if (GetCharacterMovement()->IsFalling())
+	{
+		return;
+	}
 	UE_LOG(LogTemp, Warning, TEXT("OnActionAttackStart"))
 	// 콤보를 할 수 있는 상태라면
 	if (bIsAttack)
@@ -259,6 +270,13 @@ void ADungeonAndKnightPlayer::OnActionAttackEnd(const FInputActionValue& value)
 
 void ADungeonAndKnightPlayer::HandleOnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& Payload)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Notify Begin: %s"), *NotifyName.ToString());
+	
+	if (NotifyName == "AttackStart")
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AttackStar triggered"));
+		DamagedActorThisAttack.Empty();
+	}
 	if (NotifyName == "ComboCheck")
 	{
 		// 만약 콤보 중인데
@@ -287,25 +305,6 @@ void ADungeonAndKnightPlayer::HandleOnMontageNotifyBegin(FName NotifyName, const
 	}
 }
 
-// void ADungeonAndKnightPlayer::StartWeaponCollision()
-// {
-// 	bOnCollision = true;
-// }
-//
-// void ADungeonAndKnightPlayer::EndWeaponCollision()
-// {
-// 	bOnCollision = false;
-// }
-//
-// void ADungeonAndKnightPlayer::AnimNotify_AttackStart()
-// {
-// 	StartWeaponCollision();
-// }
-//
-// void ADungeonAndKnightPlayer::AnimNotify_AttackEnd()
-// {
-// 	EndWeaponCollision();
-// }
 
 
 
