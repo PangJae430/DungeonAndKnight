@@ -135,7 +135,7 @@ void ADungeonAndKnightPlayer::Tick(float DeltaTime)
 
 
 			bool bHit = GetWorld()-> SweepMultiByChannel(OutHit,startLoc,endLoc,FQuat::Identity,
-				ECC_Pawn,FCollisionShape::MakeCapsule(15.f,50.f),Params);
+				ECC_Pawn,FCollisionShape::MakeCapsule(15.f,80.f),Params);
 			
 			if (bHit==true)
 			{
@@ -150,11 +150,10 @@ void ADungeonAndKnightPlayer::Tick(float DeltaTime)
 							DamagedActorThisAttack.Add(hitActor);
 						}
 					}
-						
 				}
 			}
 
-			DrawDebugCapsule(GetWorld(),startLoc,80.f,20.f,Caprot,FColor::Green,false,0.2f);
+			DrawDebugCapsule(GetWorld(),startLoc,80.f,15.f,Caprot,FColor::Green,false,0.2f);
 			//}
 		}
 }
@@ -196,9 +195,8 @@ void ADungeonAndKnightPlayer::OnActionJump(const FInputActionValue& value)
 void ADungeonAndKnightPlayer::OnActionAttackStart(const FInputActionValue& value)
 {
 	if (GetCharacterMovement()->IsFalling())
-	{
 		return;
-	}
+	
 	UE_LOG(LogTemp, Warning, TEXT("OnActionAttackStart"))
 	// 콤보를 할 수 있는 상태라면
 	if (bIsAttack)
@@ -274,7 +272,7 @@ void ADungeonAndKnightPlayer::HandleOnMontageNotifyBegin(FName NotifyName, const
 	
 	if (NotifyName == "AttackStart")
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AttackStar triggered"));
+		UE_LOG(LogTemp, Warning,TEXT("AttackStart triggered"));
 		DamagedActorThisAttack.Empty();
 	}
 	if (NotifyName == "ComboCheck")
@@ -290,7 +288,7 @@ void ADungeonAndKnightPlayer::HandleOnMontageNotifyBegin(FName NotifyName, const
 			}
 			else
 			{
-				UAnimInstance* AnimInst = GetMesh()->GetAnimInstance();
+				//UAnimInstance* AnimInst = GetMesh()->GetAnimInstance();
 				int32 attackType  = ComboQueue[0];
 				FName NextSection = FName(*FString::Printf(TEXT("Attack%d"), attackType));
 				PlayAnimMontage(PlayerDefaultAttackMontage, 1, NextSection);
