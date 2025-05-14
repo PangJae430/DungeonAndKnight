@@ -133,7 +133,6 @@ void ADungeonAndKnightPlayer::Tick(float DeltaTime)
 			FCollisionQueryParams Params;
 			Params.AddIgnoredActor(this);
 
-
 			bool bHit = GetWorld()-> SweepMultiByChannel(OutHit,startLoc,endLoc,FQuat::Identity,
 				ECC_Pawn,FCollisionShape::MakeCapsule(15.f,80.f),Params);
 			
@@ -148,12 +147,11 @@ void ADungeonAndKnightPlayer::Tick(float DeltaTime)
 						{
 							Enemy -> EnemyFSM -> OnMyTakeDamage(1);
 							DamagedActorThisAttack.Add(hitActor);
+							DrawDebugCapsule(GetWorld(),startLoc,80.f,15.f,Caprot,FColor::Green,false,1);
 						}
 					}
 				}
 			}
-
-			DrawDebugCapsule(GetWorld(),startLoc,80.f,15.f,Caprot,FColor::Green,false,0.2f);
 			//}
 		}
 }
@@ -197,7 +195,7 @@ void ADungeonAndKnightPlayer::OnActionAttackStart(const FInputActionValue& value
 	if (GetCharacterMovement()->IsFalling())
 		return;
 	
-	UE_LOG(LogTemp, Warning, TEXT("OnActionAttackStart"))
+	//UE_LOG(LogTemp, Warning, TEXT("OnActionAttackStart"))
 	// 콤보를 할 수 있는 상태라면
 	if (bIsAttack)
 	{
@@ -216,7 +214,6 @@ void ADungeonAndKnightPlayer::OnActionAttackStart(const FInputActionValue& value
 		ComboQueue.Empty();
 		PlayAnimMontage(PlayerDefaultAttackMontage, 0.8, "Attack0");
 	}
-
 
 
 	
@@ -263,18 +260,14 @@ void ADungeonAndKnightPlayer::OnActionAttackStart(const FInputActionValue& value
 //공격 끝
 void ADungeonAndKnightPlayer::OnActionAttackEnd(const FInputActionValue& value)
 {
-	
 }
 
 void ADungeonAndKnightPlayer::HandleOnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& Payload)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Notify Begin: %s"), *NotifyName.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("Notify Begin: %s"), *NotifyName.ToString());
+
+	DamagedActorThisAttack.Empty();
 	
-	if (NotifyName == "AttackStart")
-	{
-		UE_LOG(LogTemp, Warning,TEXT("AttackStart triggered"));
-		DamagedActorThisAttack.Empty();
-	}
 	if (NotifyName == "ComboCheck")
 	{
 		// 만약 콤보 중인데
@@ -292,7 +285,7 @@ void ADungeonAndKnightPlayer::HandleOnMontageNotifyBegin(FName NotifyName, const
 				int32 attackType  = ComboQueue[0];
 				FName NextSection = FName(*FString::Printf(TEXT("Attack%d"), attackType));
 				PlayAnimMontage(PlayerDefaultAttackMontage, 1, NextSection);
-
+				
 				ComboQueue.RemoveAt(0);
 			}
 		}
