@@ -5,6 +5,7 @@
 
 #include "DungeonAndKnightPlayer.h"
 #include "Enemy.h"
+#include "EnemyAnim.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -27,6 +28,8 @@ void UEnemyFSM::BeginPlay()
 	Me= Cast<AEnemy>(GetOwner());
 
 	Me -> GetCharacterMovement()->bOrientRotationToMovement=true;
+
+	EnemyAnim = Cast<UEnemyAnim>(Me->GetMesh()->GetAnimInstance()); 
 	
 }
 
@@ -116,8 +119,12 @@ void UEnemyFSM::TickAttack()
 	//만약 상대가 공격 가능한다면
 		if (dir.Length() < AttackRange)
 		{
-			//로그출력 PRINT_LOG(TEXT("Attack!!!"))
-			//PRINT_LOG(TEXT("Attack"));
+			EnemyAnim->bAttack=true;
+			// if (AttackMontage)
+			// {
+			// 	Me->PlayAnimMontage(AttackMontage);
+			// }
+
 		}
 		//그렇지 않다면
 		else
@@ -176,6 +183,7 @@ void UEnemyFSM::OnMyTakeDamage(int32 damage)
 void UEnemyFSM::SetState(EEnemyState next)
 {
 	State = next;
+	EnemyAnim -> State = next;
 	CurrentTime = 0.f;
 }
 

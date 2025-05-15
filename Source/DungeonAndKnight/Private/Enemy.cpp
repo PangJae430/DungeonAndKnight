@@ -13,7 +13,7 @@ AEnemy::AEnemy()
 
 	// 1. mesh의 내용을 채우고 싶다
 	ConstructorHelpers::FObjectFinder<USkeletalMesh>
-	tempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequins/Meshes/SKM_Quinn.SKM_Quinn'"));
+	tempMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/ParagonGrux/Characters/Heroes/Grux/Meshes/Grux.Grux'"));
 	if (tempMesh.Succeeded())
 	{
 		GetMesh() -> SetSkeletalMesh(tempMesh.Object);

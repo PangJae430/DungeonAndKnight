@@ -47,7 +47,7 @@ public:
 
 	//공격대기시간
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float AttackDelayTime = 2.f;
+	float AttackDelayTime = 3.f;
 
 	float CurrentTime;
 
@@ -72,5 +72,9 @@ public:
 	// 플레리어 감지 거리
 	float PlayerDetectDist = 400.f;
 	
-	
+	UPROPERTY(editAnywhere, BlueprintReadWrite)
+	class UEnemyAnim* EnemyAnim;
+
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* AttackMontage;
 };
