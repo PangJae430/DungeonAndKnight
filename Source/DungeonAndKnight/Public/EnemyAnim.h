@@ -38,10 +38,16 @@ public:
 	
 	void PlayDieAnimation();
 
-	bool bDie = false;
+	bool bIsDie = false;
 
 	UFUNCTION()
 	void AnimNotify_AttackEnd();
+
+	UFUNCTION()
+	void AnimNotify_DamagEnd();
+
+	UFUNCTION()
+	void AnimNotify_DieEnd();
 	
 	
 };

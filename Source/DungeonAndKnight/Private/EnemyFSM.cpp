@@ -61,9 +61,9 @@ void UEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 		TickDie();
 		break;
 	}
-	FString log = UEnum::GetValueAsString(State);
+	//FString log = UEnum::GetValueAsString(State);
 	//PRINT_LOG(TEXT("%s"), *log);
-	DrawDebugString(GetWorld(), Me->GetActorLocation(), log, nullptr, FColor::Yellow, 0, true, 1);
+	//DrawDebugString(GetWorld(), Me->GetActorLocation(), log, nullptr, FColor::Yellow, 0, true, 1);
 }
 
 void UEnemyFSM::TickIdle()
@@ -149,13 +149,18 @@ void UEnemyFSM::TickDamage()
 
 void UEnemyFSM::TickDie()
 {
+	// if (false==EnemyAnim->bIsDie)
+	// {
+	// 	return;
+	// }
 	//1초 동안 아래로 이동하고 싶다
+	KillCount++;
 	CurrentTime+=GetWorld()->GetDeltaSeconds();
-	FVector dir(0,0,-1);
-	FVector newLoc = Me ->GetActorLocation() + dir * DieDownSpeed *GetWorld()->GetDeltaSeconds();
-	Me->SetActorLocation(newLoc);
+	// FVector dir(0,0,-1);
+	// FVector newLoc = Me ->GetActorLocation() + dir * DieDownSpeed *GetWorld()->GetDeltaSeconds();
+	// Me->SetActorLocation(newLoc);
 	
-	if (CurrentTime>1)
+	if (CurrentTime>3)
 	{
 		//1초가 지난 후 파괴되고 싶다
 		Me->Destroy();
@@ -171,12 +176,14 @@ void UEnemyFSM::OnMyTakeDamage(int32 damage)
 	if(CurHP>0)
 	{
 		SetState(EEnemyState::Damage);
+		EnemyAnim->PlayDamageAnimation();
 	}
 	// 그렇지 않다면 죽음 상태로 전이하고 싶다
 	else
 	{
 		SetState(EEnemyState::Die);
 		Me->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		EnemyAnim->PlayDieAnimation();
 	}
 }
 

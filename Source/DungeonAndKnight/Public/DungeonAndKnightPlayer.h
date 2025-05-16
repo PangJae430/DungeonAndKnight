@@ -77,5 +77,7 @@ public:
 	bool bOnCollision = false;
 	
 	TSet<AActor*> DamagedActorThisAttack;
+
+	int32 KillCount = 0;
 	
 };

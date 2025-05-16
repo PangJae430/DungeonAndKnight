@@ -47,7 +47,7 @@ public:
 
 	//공격대기시간
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float AttackDelayTime = 3.f;
+	float AttackDelayTime = 2.f;
 
 	float CurrentTime;
 
@@ -63,7 +63,7 @@ public:
 
 	//최대체력과 현재체력
 	float MaxHP = 2.f;
-	float CurHP = 2.f;
+	float CurHP = 4.f;
 
 	void SetState(EEnemyState next);
 
@@ -77,4 +77,6 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* AttackMontage;
+
+	int32 KillCount = 0;
 };
